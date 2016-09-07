@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+
+require 'vendor/autoload.php';
+
+$app = new Symfony\Component\Console\Application('KATSANA Insight', '1.0.0');
+$app->add(new Katsana\Insight\TravelCommand());
+
+$app->run();
