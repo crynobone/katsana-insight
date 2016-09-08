@@ -1,7 +1,13 @@
 {
-    "name": "katsana/katsana-insight-export",
+    "name": "katsana/katsana-insight",
     "type": "library",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "KATSANA Developer",
+            "email": "developer@katsana.com"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Katsana\\Insight\\": "src/"
