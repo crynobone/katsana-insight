@@ -4,6 +4,7 @@ namespace Katsana\Insight;
 
 use Carbon\Carbon;
 use InvalidArgumentException;
+use Laravie\Promise\Promises;
 use Katsana\Sdk\Client as Katsana;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
@@ -55,12 +56,29 @@ class TravelCommand extends BaseCommand
         $sleep = $input->getOption('sleep');
         $directory = $this->prepareDirectoryFor($vehicle, $input->getOption('output'));
 
-        do {
+        $promises = Promises::create();
+
+        $promises->then(function ($from) use ($vehicle, $output) {
             $output->writeln("Exporting vehicle [{$vehicle}] travels on {$from->toDateString()}");
+
+            return $from;
+        })->then(function ($from) use ($katsana, $vehicle, $directory, $sleep) {
             $this->exportTravelDataFor($katsana, $vehicle, $from, $directory);
             sleep($sleep);
+
+            return $from;
+        });
+
+        do {
+            $promises->queue($from->copy());
             $from->addDay(1);
         } while ($from->lte($to));
+
+        $promises->map(function ($from) use ($output) {
+            $output->writeln("Done for {$from->toDateString()}");
+
+            return $from;
+        });
     }
 
     /**

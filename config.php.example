@@ -1,0 +1,12 @@
+<?php
+
+return [
+    'api' => [
+        'client' => [
+            'id' => null,
+            'secret' => null,
+            'token' => null,
+        ],
+        'domain' => 'https://api.katsana.com',
+    ],
+];

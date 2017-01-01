@@ -9,6 +9,11 @@ use Symfony\Component\Console\Command\Command;
 
 abstract class BaseCommand extends Command
 {
+    /**
+     * Get the client.
+     *
+     * @return \Katsana\Sdk\Client
+     */
     public function getClient()
     {
         $config = new Repository();
@@ -20,7 +25,11 @@ abstract class BaseCommand extends Command
 
         $config->set($file->getRequire(getcwd().'/config.php'));
 
-        $client = Client::make($config->get('api.key'), $config->get('api.token'));
+        $client = Client::make($config->get('api.client.id'), $config->get('api.client.secret'));
+
+        if (! is_null($accessToken = $config->get('api.client.token'))) {
+            $client->setAccessToken($accessToken);
+        }
 
         if (! is_null($domain = $config->get('api.domain'))) {
             $client->useCustomApiEndpoint($domain);
@@ -29,6 +38,11 @@ abstract class BaseCommand extends Command
         return $client;
     }
 
+    /**
+     * Get filesystem.
+     *
+     * @return \Illuminate\Filesystem\Filesystem
+     */
     protected function getFilesystem()
     {
         if (! isset($this->filesystem)) {
