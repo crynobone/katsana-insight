@@ -58,6 +58,11 @@ class TravelCommand extends BaseCommand
 
         $promises = Promises::create();
 
+        do {
+            $promises->queue($from->copy());
+            $from->addDay(1);
+        } while ($from->lt($to));
+
         $promises->then(function ($from) use ($vehicle, $output) {
             $output->writeln("Exporting vehicle [{$vehicle}] travels on {$from->toDateString()}");
 
@@ -68,20 +73,7 @@ class TravelCommand extends BaseCommand
             $this->exportTravelDataFor($katsana, $vehicle, $from, $directory);
 
             return $from;
-        });
-
-        $generator = function ($from, $to) {
-            do {
-                yield $from;
-                $from->addDay(1);
-            } while ($from->lt($to));
-        };
-
-        foreach ($generator($from, $to) as $date) {
-            $promises->queue($date);
-        }
-
-        $promises->map(function ($from) use ($output) {
+        })->map(function ($from) use ($output) {
             $output->writeln("Done for {$from->toDateString()}");
 
             return $from;
